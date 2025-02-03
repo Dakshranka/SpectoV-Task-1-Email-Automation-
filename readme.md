@@ -1,58 +1,73 @@
-# Internship Offer Letter Automation
+# Google Sheets API Trigger Script
 
-This Google Apps Script automates sending internship offer letters from a Google Sheet. It reads names and emails from the sheet and sends personalized emails using Gmail.
+This Google Apps Script listens for edits made in a Google Sheet and triggers an HTTP request to a specified API endpoint with data from the edited row.
 
-## 🚀 Features
-- Sends personalized internship offer emails.
-- Prevents duplicate emails by tracking the `Status` column.
-- Logs and alerts errors (missing sheet, headers, or failed emails).
-- Adds a custom menu (**Send Mail**) in Google Sheets for easy access.
+## Features
 
-## 📌 Setup Instructions
+- Triggers on edits in a specific sheet (`Sheet1`).
+- Sends a POST request to a custom Flask API with data from the edited row.
+- Only processes rows below the header (ignores header row edits).
+- Logs API responses and errors for debugging.
 
-### 1️⃣ **Prepare Google Sheets**
-1. Create a Google Sheet and name it **`Automation`**.
-2. Add the following column headers in **Row 1**:
-   - `Name` (Recipient's Name)
-   - `Email` (Recipient's Email Address)
-   - `Status` (Leave this blank initially)
+## Requirements
 
-### 2️⃣ **Add Apps Script**
-1. Open the Google Sheet.
-2. Click **Extensions > Apps Script**.
-3. Delete any existing code and paste the **automation.gs** script.
-4. Click **Save** (💾) and **Run** the `onOpen` function to activate the menu.
+- A Google Sheets document with at least two columns:
+  - Column 1: `Name`
+  - Column 2: `Email Address`
+- A Flask API (or similar HTTP server) capable of accepting POST requests with JSON payloads at a specified URL.
+- **Ngrok** (if you're running the Flask API locally for testing purposes).
 
-### 3️⃣ **Grant Permissions**
-1. When running the script for the first time, it will ask for Gmail and Spreadsheet permissions.
-2. Click **Authorize**.
+## Setup
 
-### 4️⃣ **Run the Script**
-1. Go to **Google Sheets**.
-2. Click **Send Mail** (from the menu) > **Send Emails**.
-3. The script will:
-   - Read the email list.
-   - Send emails to recipients without a "Status".
-   - Update `Status` to **"Email Sent"**.
+### 1. **Create a New Google Sheets Script:**
+   - Open your Google Sheets document.
+   - Go to `Extensions` → `Apps Script`.
+   - Delete any default code in the editor and paste the provided script.
 
-## 📜 Logging & Debugging
-- **View Logs**: Open Apps Script editor > Click `View` > `Logs`.
-- If emails fail, `Status` will show `"Failed to Send"`.
+### 2. **Deploy the Script:**
+   - Save the script in the Apps Script editor.
+   - Go to `Triggers` (clock icon) in the Apps Script editor and set up a trigger to run the function `myFunction` on the event `On edit`.
 
-## ⚠️ Email Quotas
-Google limits emails per day:
-- **Free Gmail Account**: 100 emails/day.
-- **Google Workspace (Paid)**: Up to 1,500 emails/day.
+### 3. **Install Ngrok (For Local Development):**
+   If you're running your Flask API locally and want to expose it to the internet for testing, you can use Ngrok to create a tunnel. Follow these steps:
+   
+   - [Download Ngrok](https://ngrok.com/download) and install it on your machine.
+   - After installation, start your Flask API on your local machine (e.g., `python app.py`).
+   - In another terminal window, run Ngrok to tunnel your local Flask server:
+     ```bash
+     ngrok http 5000
+     ```
+     This will give you a public URL, such as `https://1234abcd.ngrok.io`, that you can use for testing.
 
-## 🎯 Use Cases
-- Sending internship/job offer letters.
-- Automated email notifications.
-- Bulk email communication from Google Sheets.
+### 4. **Edit the API URL:**
+   - Replace the example URL (`https://14f6-122-187-117-179.ngrok-free.app/trigger-email`) in the script with the Ngrok URL (or your production URL if not using Ngrok).
 
----
+### 5. **API Setup:**
+   - Ensure that your Flask API is capable of handling POST requests at the `/trigger-email` endpoint.
+   - The API should expect a JSON payload with the following structure:
+     ```json
+     {
+       "Name": "John Doe",
+       "Email Address": "john.doe@example.com"
+     }
+     ```
 
-### ✨ Contributing
-Feel free to modify the script to fit your needs! 😊
+## Script Details
 
----
-Made with ❤️ by SpectoV Team.
+### Function: `myFunction(e)`
+
+- **Trigger:** This function is triggered by an `onEdit` event in the Google Sheets document.
+- **Validation:**
+  - The function ensures that the edit occurs in `Sheet1` and that it is not a header row.
+- **API Call:** 
+  - Sends a POST request to the configured API endpoint with `Name` and `Email Address` data from the edited row.
+- **Logging:** 
+  - Logs success or error responses to the console for debugging.
+
+### Example Payload:
+When a row is edited in the sheet, the script sends a POST request with the following JSON payload:
+```json
+{
+  "Name": "John Doe",
+  "Email Address": "john.doe@example.com"
+}
