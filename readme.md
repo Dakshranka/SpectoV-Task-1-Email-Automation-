@@ -9,6 +9,15 @@ This Google Apps Script listens for edits made in a Google Sheet and triggers an
 - Only processes rows below the header (ignores header row edits).
 - Logs API responses and errors for debugging.
 
+## Prerequisites
+
+Before running the project, make sure you have the following:
+1. **Python 3.x** installed on your machine.
+2. **Google Sheets** account with an existing sheet ready to be used.
+3. **ngrok** installed on your machine to expose the Flask server.
+4. **Gmail** account to send emails through Python.
+5. **Flask** installed in your Python environment.
+
 ## Requirements
 
 - A Google Sheets document with at least two columns:
